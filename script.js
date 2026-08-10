@@ -163,7 +163,7 @@ const PETAL_DATA = {
     "totem": {
         desc: "A utility item that warps the player to a different biome.",
         stats: {
-            "common": { special: "Warps player, grants 3s immunity." },
+            "common": { special: "3s Immunity" },
         },
     },
     "sacrifice": {
@@ -237,13 +237,13 @@ const PETAL_DATA = {
     "dead_leaf": {
         desc: "Increases health of equipped petals, but increases reload time by 5%.",
         stats: {
-            "common": { special: "+Petal Health, +5% Reload Time" },
+            "common": { special: "+5% Reload Time" },
         },
     },
     "goggles": {
         desc: "Allows you to see and damage Ghosts up to the rarity of the Goggles.",
         stats: {
-            "common": { special: "Can see ghosts. -20% Vision" },
+            "common": { special: "-20% Vision" },
         },
     },
     "champion_crown": {
@@ -1852,12 +1852,16 @@ function updateModeUI() {
         modeToggleBtn.querySelector('.bg-img').src = 'https://florr.io/mobs/0_9.svg'; // Titan bg
         modeToggleBtn.querySelector('.petal-img').src = 'titan.png'; // Titan face
         btnCraft.innerText = 'Craft';
+        const helper = document.getElementById('forge-helper-text');
+        if (helper) helper.style.display = 'none';
     } else {
         document.body.classList.add('forge-mode');
         topBarTitle.innerText = 'Forge';
         modeToggleBtn.querySelector('.bg-img').src = 'https://florr.io/mobs/0_0.svg'; // Trader bg
         modeToggleBtn.querySelector('.petal-img').src = 'trader.png'; // Trader face
         btnCraft.innerText = 'Forge';
+        const helper = document.getElementById('forge-helper-text');
+        if (helper) helper.style.display = 'block';
     }
     // Return all items from slots back to inventory
     for (let i = 0; i < 5; i++) {
@@ -2927,4 +2931,15 @@ function formatNumber(num) {
     if (num < 1000000000000000) return (num / 1000000000000).toFixed(1) + 'T';
     if (num < 1000000000000000000) return (num / 1000000000000000).toFixed(1) + 'Qa';
     return num.toExponential(2);
+}
+
+// Random Favicon
+const faviconLink = document.querySelector("link[rel~='icon']");
+if (faviconLink) {
+    const keys = Object.keys(KNOWN_PETALS);
+    const randomPetalName = keys[Math.floor(Math.random() * keys.length)];
+    const randomPetalId = KNOWN_PETALS[randomPetalName];
+    const rarities = ["1", "2", "3", "4", "5", "6", "7", "8"];
+    const randomRarityId = rarities[Math.floor(Math.random() * rarities.length)];
+    faviconLink.href = `https://florr.io/petals/${randomPetalId}_${randomRarityId}.svg`;
 }
