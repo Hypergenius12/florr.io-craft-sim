@@ -1793,12 +1793,17 @@ function showTooltip(el, item, totalOwned) {
         if (stats.health) statHtml += `<div style="color:#5f5">Health: ${formatStatNumber(stats.health)}</div>`;
         if (stats.usage_reload) statHtml += `<div style="color:#5df">Use Reload: ${stats.usage_reload}</div>`;
         
+        const petalName = Object.keys(KNOWN_PETALS).find(k => KNOWN_PETALS[k] === item.id);
+        const isLightningPetal = petalName === 'lightning';
+
         function formatSpecial(text) {
             if (!text) return "";
-            if (text.startsWith("Mana") || text.startsWith("Base Max Mana") || text.startsWith("Spawn Cost (mana)") || text.startsWith("Maint. Cost (mana")) {
+            if (text.startsWith("Mana") || text.startsWith("Base Max Mana") || text.startsWith("Spawn Cost (mana)") || text.startsWith("Maint. Cost (mana") || text.startsWith("Lightning")) {
                 return `<div style="color:#5df">${text}</div>`;
             } else if (text.startsWith("Poison")) {
                 return `<div style="color:#a5f">${text}</div>`;
+            } else if (isLightningPetal && text.startsWith("Bounces")) {
+                return `<div style="color:#5df">${text}</div>`;
             } else {
                 return `<div style="color:#fd5">${text}</div>`;
             }
@@ -2951,7 +2956,7 @@ function formatNumber(num) {
 // Random Favicon
 const faviconLink = document.querySelector("link[rel~='icon']");
 if (faviconLink) {
-    // Since browser CORS blocks external SVGs inside data-URI SVGs, we use 20 pre-composited SVGs
-    const randomId = Math.floor(Math.random() * 20) + 1;
+    // Since browser CORS blocks external SVGs inside data-URI SVGs, we use 65 pre-composited SVGs
+    const randomId = Math.floor(Math.random() * 65) + 1;
     faviconLink.href = `favicons/favicon_${randomId}.svg`;
 }
