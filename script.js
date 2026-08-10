@@ -1653,11 +1653,34 @@ function showTooltip(el, item, totalOwned) {
         }
         document.getElementById('tt-desc').innerHTML = descHtml;
         
+        function formatStatNumber(val) {
+            if (!val) return val;
+            let numStr = val.toString().replace(/,/g, '');
+            let num = Number(numStr);
+            if (!isNaN(num) && val.toString().trim() !== '') {
+                if (num >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'b';
+                if (num >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'm';
+                if (num >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+                return num.toString();
+            }
+            if (typeof val === 'string' && val.includes('-')) {
+                let parts = val.split('-');
+                if (parts.length === 2) {
+                    let p1 = Number(parts[0].replace(/,/g, ''));
+                    let p2 = Number(parts[1].replace(/,/g, ''));
+                    if (!isNaN(p1) && !isNaN(p2) && parts[0].trim() !== '' && parts[1].trim() !== '') {
+                        return formatStatNumber(p1) + '-' + formatStatNumber(p2);
+                    }
+                }
+            }
+            return val;
+        }
+
         let statHtml = '';
         const stats = data.stats?.[item.rarity] || {};
-        if (stats.damage) statHtml += `<div style="color:#f66">⚔ Damage: ${stats.damage}</div>`;
-        if (stats.health) statHtml += `<div style="color:#5f5">♥ Health: ${stats.health}</div>`;
-        if (stats.usage_reload) statHtml += `<div style="color:#5df">⏱ Use Reload: ${stats.usage_reload}</div>`;
+        if (stats.damage) statHtml += `<div style="color:#f66">Damage: ${formatStatNumber(stats.damage)}</div>`;
+        if (stats.health) statHtml += `<div style="color:#5f5">Health: ${formatStatNumber(stats.health)}</div>`;
+        if (stats.usage_reload) statHtml += `<div style="color:#5df">Use Reload: ${stats.usage_reload}</div>`;
         
         function formatSpecial(text) {
             if (!text) return "";
@@ -1666,7 +1689,7 @@ function showTooltip(el, item, totalOwned) {
             } else if (text.startsWith("Poison")) {
                 return `<div style="color:#a5f">${text}</div>`;
             } else {
-                return `<div style="color:#fd5">★ ${text}</div>`;
+                return `<div style="color:#fd5">${text}</div>`;
             }
         }
         
@@ -1676,7 +1699,7 @@ function showTooltip(el, item, totalOwned) {
         
         document.getElementById('tt-stats').innerHTML = statHtml;
         if (stats.reload) {
-            document.getElementById('tt-cooldown').innerText = stats.reload + ' ↻';
+            document.getElementById('tt-cooldown').innerHTML = stats.reload + ' <span style="display:inline-block; transform: rotate(90deg); font-size: 1.15em;">\u21BB</span>';
         } else {
             document.getElementById('tt-cooldown').innerText = '';
         }
