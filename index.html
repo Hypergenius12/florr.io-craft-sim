@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Florr.io Crafting Simulator</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css?v=62">
+    <link rel="stylesheet" href="style.css?v=67">
 </head>
 <body>
     <div class="top-bar">
@@ -37,15 +37,15 @@
                 Combine 5 of the same petal to craft an upgrade<br>
                 Failure will destroy 1-4 petals
             </div>
-        </div>
-
-        <!-- Inventory (Right) -->
-        <div class="inventory-area">
-            <div id="forge-helper-text" class="craft-helper-text" style="display: none; margin-top: 0; margin-bottom: 20px;">
+            <div id="forge-helper-text" class="craft-helper-text" style="display: none;">
                 Unique petals will last until another player forges the same petal.<br>
                 When that happens, you will receive your Super petals back,<br>
                 but one will be permanently destroyed.
             </div>
+        </div>
+
+        <!-- Inventory (Right) -->
+        <div class="inventory-area">
             <div id="inventory-grid" class="inventory-grid"></div>
         </div>
     </div>
@@ -73,6 +73,6 @@
             <input type="text" id="console-input" placeholder="Type 'help' for commands (e.g. 'super ankh 150', 'forge all')" autocomplete="off" spellcheck="false">
         </div>
     </div>
-    <script src="script.js?v=66"></script>
+    <script src="script.js?v=67"></script>
 </body>
 </html>

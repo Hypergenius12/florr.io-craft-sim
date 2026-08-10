@@ -327,15 +327,6 @@ body.forge-mode .inventory-grid {
 body.forge-mode .console-panel {
     background: rgba(40, 40, 40, 0.95);
 }
-body.forge-mode .crafting-area {
-    display: none;
-}
-body.forge-mode .inventory-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-left: none;
-}
 
 .mode-toggle {
     cursor: pointer;
@@ -355,6 +346,7 @@ body.forge-mode .inventory-area {
     cursor: not-allowed;
 }
 
+.slot.disabled .bg-img,
 .slot.disabled .petal-img,
 .slot.disabled .count {
     filter: grayscale(1);

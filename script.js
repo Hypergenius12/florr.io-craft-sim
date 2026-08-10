@@ -2941,5 +2941,12 @@ if (faviconLink) {
     const randomPetalId = KNOWN_PETALS[randomPetalName];
     const rarities = ["1", "2", "3", "4", "5", "6", "7", "8"];
     const randomRarityId = rarities[Math.floor(Math.random() * rarities.length)];
-    faviconLink.href = `https://florr.io/petals/${randomPetalId}_${randomRarityId}.svg`;
+    const svgString = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+  <image href="https://florr.io/petals/0_${randomRarityId}.svg" width="100" height="100" />
+  <image href="https://florr.io/petals/${randomPetalId}.svg" width="100" height="100" />
+</svg>`;
+    const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+    faviconLink.href = dataUrl;
+}
+_${randomRarityId}.svg`;
 }
