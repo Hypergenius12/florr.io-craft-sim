@@ -2402,7 +2402,7 @@ function renderInventory() {
                 
                 const bgImg = document.createElement('img');
                 bgImg.className = 'bg-img';
-                bgImg.src = `https://florr.io/petals/0_${slotDiv.classList.contains('disabled') ? '6' : rData.id}.svg`;
+                bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
                 
                 const img = document.createElement('img');
                 img.className = 'petal-img';
@@ -2437,15 +2437,26 @@ function renderInventory() {
             }
             
             const countDiv = el.querySelector('.count');
+            const bgImg = el.querySelector('.bg-img');
             if (currentMode === 'forge') {
                 let req = forgeCosts[petalName];
                 countDiv.innerText = `${formatNumber(item.count)}/${formatNumber(req)}`;
-                if (totalOwned < req) el.classList.add('disabled');
-                else el.classList.remove('disabled');
+                if (totalOwned < req) {
+                    el.classList.add('disabled');
+                    if (bgImg) bgImg.src = 'https://florr.io/petals/0_6.svg';
+                } else {
+                    el.classList.remove('disabled');
+                    if (bgImg) bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                }
             } else {
                 countDiv.innerText = `x${formatNumber(item.count)}`;
-                if (!rData.next || totalOwned >= 5) el.classList.remove('disabled');
-                else el.classList.add('disabled');
+                if (!rData.next || totalOwned >= 5) {
+                    el.classList.remove('disabled');
+                    if (bgImg) bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                } else {
+                    el.classList.add('disabled');
+                    if (bgImg) bgImg.src = 'https://florr.io/petals/0_6.svg';
+                }
             }
             
         } else {
@@ -2588,7 +2599,7 @@ function renderCrafting(skipCenterClear = false) {
             
             const bgImg = document.createElement('img');
             bgImg.className = 'bg-img';
-            bgImg.src = `https://florr.io/petals/0_${slotDiv.classList.contains('disabled') ? '6' : rData.id}.svg`;
+            bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
             
             const img = document.createElement('img');
             img.className = 'petal-img';
