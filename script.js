@@ -146,6 +146,20 @@ let forgeCosts = {};
 let craftResultShowing = false;
 
 const PETAL_DATA = {
+    "wax": {
+        desc: "A defensive petal that drops a large block to physically obstruct mobs.",
+        stats: {
+            "common": { health: "1000", reload: "30s" },
+            "unusual": { health: "3000", reload: "30s" },
+            "rare": { health: "9000", reload: "30s" },
+            "epic": { health: "27000", reload: "30s" },
+            "legendary": { health: "81000", reload: "30s" },
+            "mythic": { health: "243000", reload: "30s" },
+            "ultra": { health: "729000", reload: "30s" },
+            "super": { health: "2187000", reload: "30s" },
+            "unique": { health: "6561000", reload: "30s" },
+        },
+    },
     "bean": {
         desc: "Deals 1.5x damage when no allied flowers (players) are nearby.",
         stats: {
@@ -1949,6 +1963,16 @@ function processCommand(rawCmd) {
         return;
     }
 
+    if (parts[0] === 'reset' && parts[1] === 'forge') {
+        Object.keys(forgeCosts).forEach(k => {
+            forgeCosts[k] = 5;
+        });
+        localStorage.setItem('florr_forge_costs', JSON.stringify(forgeCosts));
+        renderInventory();
+        log("Forge costs reset to 5.", "#7eef6d");
+        return;
+    }
+
     if (parts[0] === 'help') {
         log("=== Commands Help ===", "#7eef6d", true);
         log("Modifiers: ',' (and), '-' (through), '[...]' (exclude)", "#aaa", true);
@@ -1966,6 +1990,8 @@ function processCommand(rawCmd) {
         log("   > forge all[clover]", "#ccc", true);
         log("4. Clear: clear <rarity|target>", "#fff", true);
         log("   > clear mythic-super", "#ccc", true);
+        log("5. Reset Forge: reset forge", "#fff", true);
+        log("   > resets all forge costs to 5", "#ccc", true);
         return;
     }
 
