@@ -326,6 +326,14 @@ body.forge-mode .inventory-grid {
 body.forge-mode .console-panel {
     background: rgba(40, 40, 40, 0.95);
 }
+body.forge-mode .crafting-area {
+    display: none;
+}
+body.forge-mode .inventory-area {
+    display: flex;
+    justify-content: center;
+    border-left: none;
+}
 
 .mode-toggle {
     cursor: pointer;

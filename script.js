@@ -1784,7 +1784,11 @@ function showTooltip(el, item, totalOwned) {
         }
 
         let statHtml = '';
-        const stats = data.stats?.[item.rarity] || {};
+        let stats = data.stats?.[item.rarity];
+        if (!stats && data.stats) {
+            stats = Object.values(data.stats)[0];
+        }
+        stats = stats || {};
         if (stats.damage) statHtml += `<div style="color:#f66">Damage: ${formatStatNumber(stats.damage)}</div>`;
         if (stats.health) statHtml += `<div style="color:#5f5">Health: ${formatStatNumber(stats.health)}</div>`;
         if (stats.usage_reload) statHtml += `<div style="color:#5df">Use Reload: ${stats.usage_reload}</div>`;
