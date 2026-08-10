@@ -660,7 +660,12 @@ const PETAL_DATA = {
         },
     },
     "corruption": {
-        desc: "Corrupts one\'s soul, turning them against their own kind.<br>Cannot be unequipped. Lost on death (except Super+).",
+        desc: {
+            "default": "Corrupts one's soul, turning them against their own kind.<br>Cannot be unequipped. Lost on death.",
+            "super": "Corrupts one's soul, turning them against their own kind.<br>Cannot be unequipped.",
+            "eternal": "Corrupts one's soul, turning them against their own kind.<br>Cannot be unequipped.",
+            "unique": "Corrupts one's soul, turning them against their own kind.<br>Cannot be unequipped."
+        },
         stats: {
             "common": {  },
             "unusual": {  },
@@ -2953,10 +2958,4 @@ function formatNumber(num) {
     return num.toExponential(2);
 }
 
-// Random Favicon
-const faviconLink = document.querySelector("link[rel~='icon']");
-if (faviconLink) {
-    // Since browser CORS blocks external SVGs inside data-URI SVGs, we use 65 pre-composited SVGs
-    const randomId = Math.floor(Math.random() * 65) + 1;
-    faviconLink.href = `favicons/favicon_${randomId}.svg`;
-}
+
