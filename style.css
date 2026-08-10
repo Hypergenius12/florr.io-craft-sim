@@ -352,7 +352,10 @@ body.forge-mode .console-panel {
     cursor: not-allowed;
 }
 
-.slot.disabled .bg-img,
+.slot.disabled .bg-img {
+    filter: grayscale(1) brightness(1.2);
+}
+
 .slot.disabled .petal-img,
 .slot.disabled .count {
     filter: grayscale(1);

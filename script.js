@@ -2402,7 +2402,7 @@ function renderInventory() {
                 
                 const bgImg = document.createElement('img');
                 bgImg.className = 'bg-img';
-                bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                bgImg.src = `https://florr.io/petals/0_${slotDiv.classList.contains('disabled') ? '6' : rData.id}.svg`;
                 
                 const img = document.createElement('img');
                 img.className = 'petal-img';
@@ -2588,7 +2588,7 @@ function renderCrafting(skipCenterClear = false) {
             
             const bgImg = document.createElement('img');
             bgImg.className = 'bg-img';
-            bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+            bgImg.src = `https://florr.io/petals/0_${slotDiv.classList.contains('disabled') ? '6' : rData.id}.svg`;
             
             const img = document.createElement('img');
             img.className = 'petal-img';
@@ -2939,12 +2939,5 @@ if (faviconLink) {
     const keys = Object.keys(KNOWN_PETALS);
     const randomPetalName = keys[Math.floor(Math.random() * keys.length)];
     const randomPetalId = KNOWN_PETALS[randomPetalName];
-    const rarities = ["1", "2", "3", "4", "5", "6", "7", "8"];
-    const randomRarityId = rarities[Math.floor(Math.random() * rarities.length)];
-    const svgString = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-  <image href="https://florr.io/petals/0_${randomRarityId}.svg" width="100" height="100" />
-  <image href="https://florr.io/petals/${randomPetalId}.svg" width="100" height="100" />
-</svg>`;
-    const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-    faviconLink.href = dataUrl;
+    faviconLink.href = `https://florr.io/petals/${randomPetalId}.svg`;
 }
