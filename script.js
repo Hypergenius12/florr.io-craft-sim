@@ -779,6 +779,15 @@ const PETAL_DATA = {
     "electric_web": {
         desc: "It\'s a little less sticky, but a bit more shocking.",
         stats: {
+            "common": { damage: "5", health: "10", reload: "4s", special: "Duration: 10s", special2: "Radius: 50", special3: "Lightning: 5" },
+            "unusual": { damage: "15", health: "30", reload: "4s", special: "Duration: 10s", special2: "Radius: 60", special3: "Lightning: 15" },
+            "rare": { damage: "45", health: "90", reload: "4s", special: "Duration: 10s", special2: "Radius: 70", special3: "Lightning: 45" },
+            "epic": { damage: "135", health: "270", reload: "4s", special: "Duration: 10s", special2: "Radius: 80", special3: "Lightning: 135" },
+            "legendary": { damage: "405", health: "810", reload: "4s", special: "Duration: 10s", special2: "Radius: 100", special3: "Lightning: 405" },
+            "mythic": { damage: "1215", health: "2430", reload: "4s", special: "Duration: 10s", special2: "Radius: 150", special3: "Lightning: 1215" },
+            "ultra": { damage: "3645", health: "7290", reload: "4s", special: "Duration: 10s", special2: "Radius: 200", special3: "Lightning: 3645" },
+            "super": { damage: "10935", health: "21870", reload: "4s", special: "Duration: 10s", special2: "Radius: 250", special3: "Lightning: 10935" },
+            "unique": { damage: "32805", health: "65610", reload: "4s", special: "Duration: 10s", special2: "Radius: 300", special3: "Lightning: 32805" },
         },
     },
     "fang": {
