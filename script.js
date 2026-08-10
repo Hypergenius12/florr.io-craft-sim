@@ -2948,5 +2948,3 @@ if (faviconLink) {
     const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
     faviconLink.href = dataUrl;
 }
-_${randomRarityId}.svg`;
-}
