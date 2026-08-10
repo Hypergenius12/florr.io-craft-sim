@@ -2951,8 +2951,7 @@ function formatNumber(num) {
 // Random Favicon
 const faviconLink = document.querySelector("link[rel~='icon']");
 if (faviconLink) {
-    const keys = Object.keys(KNOWN_PETALS);
-    const randomPetalName = keys[Math.floor(Math.random() * keys.length)];
-    const randomPetalId = KNOWN_PETALS[randomPetalName];
-    faviconLink.href = `https://florr.io/petals/${randomPetalId}.svg`;
+    // Since browser CORS blocks external SVGs inside data-URI SVGs, we use 20 pre-composited SVGs
+    const randomId = Math.floor(Math.random() * 20) + 1;
+    faviconLink.href = `favicons/favicon_${randomId}.svg`;
 }
