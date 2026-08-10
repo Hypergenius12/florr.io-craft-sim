@@ -1854,6 +1854,8 @@ function updateModeUI() {
         btnCraft.innerText = 'Craft';
         const helper = document.getElementById('forge-helper-text');
         if (helper) helper.style.display = 'none';
+        const craftHelper = document.getElementById('craft-helper-text');
+        if (craftHelper) craftHelper.style.display = 'block';
     } else {
         document.body.classList.add('forge-mode');
         topBarTitle.innerText = 'Forge';
@@ -1862,6 +1864,8 @@ function updateModeUI() {
         btnCraft.innerText = 'Forge';
         const helper = document.getElementById('forge-helper-text');
         if (helper) helper.style.display = 'block';
+        const craftHelper = document.getElementById('craft-helper-text');
+        if (craftHelper) craftHelper.style.display = 'none';
     }
     // Return all items from slots back to inventory
     for (let i = 0; i < 5; i++) {
