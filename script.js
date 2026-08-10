@@ -146,6 +146,20 @@ let forgeCosts = {};
 let craftResultShowing = false;
 
 const PETAL_DATA = {
+    "bean": {
+        desc: "Deals 1.5x damage when no allied flowers (players) are nearby.",
+        stats: {
+            "common": { damage: "10", health: "12", reload: "2s" },
+            "unusual": { damage: "30", health: "36", reload: "2s" },
+            "rare": { damage: "90", health: "108", reload: "2s" },
+            "epic": { damage: "270", health: "324", reload: "2s" },
+            "legendary": { damage: "810", health: "972", reload: "2s" },
+            "mythic": { damage: "2430", health: "2916", reload: "2s" },
+            "ultra": { damage: "7290", health: "8748", reload: "2s" },
+            "super": { damage: "21870", health: "26244", reload: "2s" },
+            "unique": { damage: "65610", health: "78732", reload: "2s" },
+        },
+    },
     "air": {
         desc: "It\'s literally nothing.",
         stats: {
@@ -193,13 +207,13 @@ const PETAL_DATA = {
         stats: {
             "common": { damage: "0", health: "25", reload: "30s", special: "Contents: x4 Soldier Ant (Common)" },
             "unusual": { damage: "0", health: "75", reload: "38s", special: "Contents: x4 Soldier Ant (Unusual)" },
-            "rare": { damage: "0", health: "225", reload: "2.4s", special: "Contents: x4 Soldier Ant (Unusual)" },
-            "epic": { damage: "0", health: "675", reload: "3.3s", special: "Contents: x4 Soldier Ant (Rare)" },
-            "legendary": { damage: "0", health: "2025", reload: "5.1s", special: "Contents: x4 Soldier Ant (Epic)" },
-            "mythic": { damage: "0", health: "6075", reload: "15.8s", special: "Contents: x4 Soldier Ant (Legendary)" },
-            "ultra": { damage: "0", health: "18225", reload: "33.6s", special: "Contents: x4 Soldier Ant (Mythic)" },
-            "super": { damage: "0", health: "54675", reload: "140.2s", special: "Contents: x4 Soldier Ant (Ultra)" },
-            "unique": { damage: "0", health: "164025", reload: "13.8s", special: "Contents: x4 Soldier Ant (Ultra)" },
+            "rare": { damage: "0", health: "225", reload: "2.4m", special: "Contents: x4 Soldier Ant (Rare)" },
+            "epic": { damage: "0", health: "675", reload: "3.3m", special: "Contents: x4 Soldier Ant (Epic)" },
+            "legendary": { damage: "0", health: "2025", reload: "5.1m", special: "Contents: x4 Soldier Ant (Legendary)" },
+            "mythic": { damage: "0", health: "6075", reload: "15.8m", special: "Contents: x4 Soldier Ant (Mythic)" },
+            "ultra": { damage: "0", health: "18225", reload: "33.6m", special: "Contents: x4 Soldier Ant (Ultra)" },
+            "super": { damage: "0", health: "54675", reload: "140.2m", special: "Contents: x4 Soldier Ant (Super)" },
+            "unique": { damage: "0", health: "164025", reload: "13.8h", special: "Contents: x4 Soldier Ant (Unique)" },
         },
     },
     "antennae": {
@@ -279,11 +293,11 @@ const PETAL_DATA = {
             "unusual": { damage: "0", health: "1", reload: "21.8s", special: "Contents: Beetle (Unusual)" },
             "rare": { damage: "0", health: "1", reload: "26.5s", special: "Contents: Beetle (Rare)" },
             "epic": { damage: "0", health: "1", reload: "36s", special: "Contents: Beetle (Epic)" },
-            "legendary": { damage: "0", health: "1", reload: "2.2s", special: "Contents: Beetle (Epic)" },
-            "mythic": { damage: "0", health: "1", reload: "8.6s", special: "Contents: Beetle (Legendary)" },
-            "ultra": { damage: "0", health: "1", reload: "19.1s", special: "Contents: Beetle (Mythic)" },
-            "super": { damage: "0", health: "1", reload: "82.4s", special: "Contents: Beetle (Ultra)" },
-            "unique": { damage: "0", health: "1", reload: "7.4s", special: "Contents: Beetle (Ultra)" },
+            "legendary": { damage: "0", health: "1", reload: "2.2m", special: "Contents: Beetle (Legendary)" },
+            "mythic": { damage: "0", health: "1", reload: "8.6m", special: "Contents: Beetle (Mythic)" },
+            "ultra": { damage: "0", health: "1", reload: "19.1m", special: "Contents: Beetle (Ultra)" },
+            "super": { damage: "0", health: "1", reload: "82.4m", special: "Contents: Beetle (Super)" },
+            "unique": { damage: "0", health: "1", reload: "7.4h", special: "Contents: Beetle (Unique)" },
         },
     },
     "blood_stinger": {
@@ -1629,14 +1643,29 @@ function showTooltip(el, item, totalOwned) {
         const stats = data.stats?.[item.rarity] || {};
         if (stats.damage) statHtml += `<div style="color:#f66">⚔ Damage: ${stats.damage}</div>`;
         if (stats.health) statHtml += `<div style="color:#5f5">♥ Health: ${stats.health}</div>`;
-        if (stats.reload) statHtml += `<div style="color:#5df">↻ Reload: ${stats.reload}</div>`;
         if (stats.usage_reload) statHtml += `<div style="color:#5df">⏱ Use Reload: ${stats.usage_reload}</div>`;
-        if (stats.special) statHtml += `<div style="color:#fd5">★ ${stats.special}</div>`;
-        if (stats.special2) statHtml += `<div style="color:#fd5">★ ${stats.special2}</div>`;
-        if (stats.special3) statHtml += `<div style="color:#fd5">★ ${stats.special3}</div>`;
+        
+        function formatSpecial(text) {
+            if (!text) return "";
+            if (text.startsWith("Mana") || text.startsWith("Base Max Mana") || text.startsWith("Spawn Cost (mana)") || text.startsWith("Maint. Cost (mana")) {
+                return `<div style="color:#5df">${text}</div>`;
+            } else if (text.startsWith("Poison")) {
+                return `<div style="color:#a5f">${text}</div>`;
+            } else {
+                return `<div style="color:#fd5">★ ${text}</div>`;
+            }
+        }
+        
+        if (stats.special) statHtml += formatSpecial(stats.special);
+        if (stats.special2) statHtml += formatSpecial(stats.special2);
+        if (stats.special3) statHtml += formatSpecial(stats.special3);
         
         document.getElementById('tt-stats').innerHTML = statHtml;
-        document.getElementById('tt-cooldown').innerText = '';
+        if (stats.reload) {
+            document.getElementById('tt-cooldown').innerText = stats.reload + ' ↻';
+        } else {
+            document.getElementById('tt-cooldown').innerText = '';
+        }
     } else {
         document.getElementById('tt-desc').innerHTML = "<em>(Stats coming soon)</em>";
         document.getElementById('tt-stats').innerHTML = '';
