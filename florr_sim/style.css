@@ -25,7 +25,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Ubuntu Sans", sans-serif; user-select: none; }
 
-body { background: var(--bg-main); color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+body { background: var(--bg-main); color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; -webkit-text-stroke: 0.4px rgba(0,0,0,0.8); paint-order: stroke fill; text-shadow: -0.5px -0.5px 0 rgba(0,0,0,0.6), 0.5px -0.5px 0 rgba(0,0,0,0.6), -0.5px 0.5px 0 rgba(0,0,0,0.6), 0.5px 0.5px 0 rgba(0,0,0,0.6); }
 
     .top-bar {
         background: #a46d38;
@@ -342,7 +342,92 @@ body.forge-mode .console-panel {
 }
 
 .slot.disabled {
+    cursor: not-allowed;
+}
+
+.slot.disabled .petal-img,
+.slot.disabled .count {
     filter: grayscale(1);
     opacity: 0.5;
-    pointer-events: none;
 }
+
+/* --- Craft fail particle burst --- */
+@keyframes craft-particle-fly {
+    0%   { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+}
+
+.craft-fail-particle {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    animation: craft-particle-fly 0.8s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+
+}
+
+/* --- Tooltip --- */
+#tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 12px;
+    color: #fff;
+    font-family: 'Ubuntu', sans-serif;
+    pointer-events: none;
+    z-index: 10000;
+    display: none;
+    min-width: 250px;
+    transform: translate(-50%, -100%);
+    margin-top: -15px;
+}
+#tt-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+#tt-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 6px;
+    text-transform: capitalize;
+}
+#tt-count {
+    font-size: 16px;
+    color: #ccc;
+    font-weight: bold;
+}
+#tt-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+#tt-right img {
+    height: 16px;
+    margin-right: 4px;
+}
+#tt-rarity {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+}
+#tt-desc {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    font-weight: bold;
+}
+#tt-stats {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.4;
+}
+#tt-stats .stat-health { color: #52f952; }
+#tt-stats .stat-damage { color: #f44; }
+#tt-stats .stat-luck { color: #fd4; }
+#tt-stats .stat-reload { color: #a4f; }
+#tt-stats .stat-armor { color: #aaa; }
+#tt-stats .stat-radius { color: #f9f; }

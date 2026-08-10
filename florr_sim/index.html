@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Florr.io Crafting Simulator</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css?v=47">
+    <link rel="stylesheet" href="style.css?v=50">
 </head>
 <body>
     <div class="top-bar">
@@ -45,6 +45,21 @@
         </div>
     </div>
 
+    <!-- Tooltip -->
+    <div id="tooltip">
+        <div id="tt-header">
+            <span id="tt-name"></span>
+            <span id="tt-count"></span>
+            <div id="tt-right">
+                <img id="tt-icon" src="" style="display:none;">
+                <span id="tt-cooldown"></span>
+            </div>
+        </div>
+        <div id="tt-rarity"></div>
+        <div id="tt-desc"></div>
+        <div id="tt-stats"></div>
+    </div>
+
     <!-- Command Console -->
     <div class="console-area">
         <div class="console-log" id="console-log"></div>
@@ -53,6 +68,6 @@
             <input type="text" id="console-input" placeholder="Type 'help' for commands (e.g. 'super ankh 150', 'forge all')" autocomplete="off" spellcheck="false">
         </div>
     </div>
-    <script src="script.js?v=43"></script>
+    <script src="script.js?v=52"></script>
 </body>
 </html>
