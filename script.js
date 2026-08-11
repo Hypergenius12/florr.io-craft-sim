@@ -7979,13 +7979,11 @@ function formatNumber(num) {
 
 let isAnimating = false;
 
-function playTransferAnimation(item, startEl, endEl, callback) {
-    if (!startEl || !endEl) {
+function playTransferAnimation(item, startRect, endRect, endEl, callback) {
+    if (!startRect || !endRect) {
         if (callback) callback();
         return;
     }
-    const startRect = startEl.getBoundingClientRect();
-    const endRect = endEl.getBoundingClientRect();
     
     endEl.classList.add('hide-contents');
     
@@ -8056,8 +8054,17 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
     uiCenter.innerHTML = '';
     uiCenter.className = 'craft-center-effect';
 
+    const centerX = pentagon.offsetWidth / 2;
+    const centerY = pentagon.offsetHeight / 2;
+
     const petals = [];
     for (let i = 0; i < 5; i++) {
+        const slotEl = uiSlots[i];
+        const dx = slotEl.offsetLeft - centerX;
+        const dy = slotEl.offsetTop - centerY;
+        const initialRadius = Math.sqrt(dx*dx + dy*dy);
+        const initialAngle = Math.atan2(dy, dx);
+
         const petal = document.createElement('div');
         petal.className = 'crafting-anim-petal';
         
@@ -8076,7 +8083,8 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
         
         petals.push({
             el: petal,
-            angleOffset: (Math.PI * 2 / 5) * i
+            initialRadius: initialRadius,
+            initialAngle: initialAngle
         });
     }
     
@@ -8095,29 +8103,35 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
             return;
         }
         
-        // Easing function for speed: Starts slow, gets very fast.
-        const easedProgress = Math.pow(progress, 2.5); 
+        // Easing function for speed: Starts slow, gets very fast. Use power curve for acceleration.
+        const easedProgress = Math.pow(progress, 3); // smoother curve
         
-        // Total rotations based on duration. Max ~15-20 rotations.
-        const totalRotations = Math.min(20, duration / 500); 
+        // Total rotations based on duration.
+        const totalRotations = Math.min(25, duration / 400); 
         const currentAngle = easedProgress * totalRotations * Math.PI * 2;
         
         // Pulse frequency increases with progress
-        const pulseFreq = 2 + progress * 8; 
+        const pulseFreq = 3 + progress * 8; 
         
-        // Distance from center: starts at radius ~120, pulses inward, at the very end dives to 0 if success
-        let radius = 120 + Math.sin(progress * Math.PI * 2 * pulseFreq) * 30 * (1 - progress);
+        // We use a scale factor for the radius. Starts at 1.0.
+        // It pulses inwards mostly, so we use negative sin.
+        // The pulsing gets more intense (larger amplitude) as progress increases, up to a point.
+        let radiusScale = 1.0 - Math.abs(Math.sin(progress * Math.PI * 2 * pulseFreq)) * 0.2 * Math.sin(progress * Math.PI);
         
         if (progress > 0.9 && isSuccess) {
             // Dive into center
             const diveProgress = (progress - 0.9) / 0.1;
-            radius = radius * (1 - Math.pow(diveProgress, 2));
+            radiusScale = radiusScale * (1 - Math.pow(diveProgress, 3));
+        } else if (progress > 0.9 && !isSuccess) {
+            // Slight freeze/jitter effect before explosion
+            radiusScale += (Math.random() - 0.5) * 0.05;
         }
 
         petals.forEach((p) => {
-            const angle = currentAngle + p.angleOffset;
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
+            const angle = currentAngle + p.initialAngle;
+            const r = p.initialRadius * radiusScale;
+            const x = Math.cos(angle) * r;
+            const y = Math.sin(angle) * r;
             
             p.el.style.transform = `translate(${x}px, ${y}px)`;
         });
