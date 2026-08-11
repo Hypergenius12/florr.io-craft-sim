@@ -7799,7 +7799,7 @@ btnCraft.onclick = () => {
             }
         }
         
-        playCraftingAnimation(baseItem, () => {
+        playCraftingAnimation(baseItem, true, () => {
             showResult(forgesDone, forgesDone, baseItem, rData, 'unique');
             addInventory('unique', baseItem.id, baseItem.name, forgesDone);
             renderCrafting(true);
@@ -7817,13 +7817,15 @@ btnCraft.onclick = () => {
     btnCraft.disabled = true;
     let chance = (baseItem.name.toLowerCase() === 'square') ? 1.0 : rData.chance;
 
-    playCraftingAnimation(baseItem, () => {
-        let result = simulateCraftingBulk(totalPetalsInSlots, chance);
-        let successes = result.successes;
-        let failures = result.failures;
-        let originalTotal = totalPetalsInSlots;
-        totalPetalsInSlots = result.remaining;
-        
+    let result = simulateCraftingBulk(totalPetalsInSlots, chance);
+    let successes = result.successes;
+    let failures = result.failures;
+    let originalTotal = totalPetalsInSlots;
+    totalPetalsInSlots = result.remaining;
+    
+    let isSuccess = successes > 0;
+
+    playCraftingAnimation(baseItem, isSuccess, () => {
         let attempts = successes + failures;
         let destroyed = originalTotal - totalPetalsInSlots - (successes * 5);
         // Visual result in center
@@ -7985,6 +7987,8 @@ function playTransferAnimation(item, startEl, endEl, callback) {
     const startRect = startEl.getBoundingClientRect();
     const endRect = endEl.getBoundingClientRect();
     
+    endEl.classList.add('hide-contents');
+    
     const rData = RARITIES[item.rarity];
     
     const animEl = document.createElement('div');
@@ -8024,11 +8028,12 @@ function playTransferAnimation(item, startEl, endEl, callback) {
         if (document.body.contains(animEl)) {
             document.body.removeChild(animEl);
         }
+        endEl.classList.remove('hide-contents');
         if (callback) callback();
     }, 400);
 }
 
-function playCraftingAnimation(baseItem, resultCallback, isForge = false) {
+function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = false) {
     const pentagon = document.getElementById('pentagon-container');
     const rData = RARITIES[baseItem.rarity];
     
@@ -8100,10 +8105,10 @@ function playCraftingAnimation(baseItem, resultCallback, isForge = false) {
         // Pulse frequency increases with progress
         const pulseFreq = 2 + progress * 8; 
         
-        // Distance from center: starts at radius ~120, pulses inward, at the very end dives to 0
+        // Distance from center: starts at radius ~120, pulses inward, at the very end dives to 0 if success
         let radius = 120 + Math.sin(progress * Math.PI * 2 * pulseFreq) * 30 * (1 - progress);
         
-        if (progress > 0.9) {
+        if (progress > 0.9 && isSuccess) {
             // Dive into center
             const diveProgress = (progress - 0.9) / 0.1;
             radius = radius * (1 - Math.pow(diveProgress, 2));
@@ -8114,7 +8119,7 @@ function playCraftingAnimation(baseItem, resultCallback, isForge = false) {
             const x = Math.cos(angle) * radius;
             const y = Math.sin(angle) * radius;
             
-            p.el.style.transform = `translate(${x}px, ${y}px) rotate(${angle}rad)`;
+            p.el.style.transform = `translate(${x}px, ${y}px)`;
         });
         
         animId = requestAnimationFrame(animate);

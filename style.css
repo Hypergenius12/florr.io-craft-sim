@@ -507,3 +507,7 @@ body.forge-mode .console-panel {
     100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 
+
+.hide-contents > * {
+    opacity: 0 !important;
+}
