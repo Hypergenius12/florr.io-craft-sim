@@ -7370,7 +7370,8 @@ function renderInventory() {
             const raritiesArr = Object.keys(RARITIES).map(k => ({ name: k, ...RARITIES[k] })).sort((a, b) => a.id - b.id);
             raritiesArr.forEach(rData => {
                 const el = document.createElement('div');
-                el.className = 'slot';
+                let hc = el.classList.contains('hide-contents') ? ' hide-contents' : '';
+                el.className = 'slot' + hc;
                 el.dataset.id = id;
                 el.dataset.rarity = rData.name;
                 uiInventory.appendChild(el);
@@ -7417,7 +7418,8 @@ function renderInventory() {
         
         if (item && item.count > 0) {
             if (!el.classList.contains('filled')) {
-                el.className = 'slot filled';
+                let hc = el.classList.contains('hide-contents') ? ' hide-contents' : '';
+                el.className = 'slot filled' + hc;
                 el.innerHTML = '';
                 
                 const bgImg = document.createElement('img');
@@ -7481,7 +7483,8 @@ function renderInventory() {
             
         } else {
             if (el.classList.contains('filled')) {
-                el.className = 'slot';
+                let hc = el.classList.contains('hide-contents') ? ' hide-contents' : '';
+                el.className = 'slot' + hc;
                 el.innerHTML = '';
                 el.onclick = null;
             }
@@ -7586,15 +7589,15 @@ function moveAllToCrafting(item, startEl) {
     }
     
     let endRects = targets.map(i => uiSlots[i].getBoundingClientRect());
-    let cloneEl = startEl ? startEl.cloneNode(true) : null;
+    
+    if (startEl) {
+        targets.forEach((i, idx) => {
+            playTransferAnimation(startEl, endRects[idx], uiSlots[i]);
+        });
+    }
     
     renderInventory();
     renderCrafting();
-    if (startRect) {
-        targets.forEach((i, idx) => {
-            playTransferAnimation(startRect, endRects[idx], uiSlots[i], cloneEl);
-        });
-    }
 }
 
 function removeFromCrafting(index, shiftKey, startEl) {
@@ -7645,7 +7648,8 @@ function renderCrafting(skipCenterClear = false) {
             
             if (!slotEl.classList.contains('filled')) {
                 slotEl.innerHTML = '';
-                slotEl.className = 'slot pentagon-slot filled';
+                let hc = slotEl.classList.contains('hide-contents') ? ' hide-contents' : '';
+                slotEl.className = 'slot pentagon-slot filled' + hc;
                 
                 const bgImg = document.createElement('img');
                 bgImg.className = 'bg-img';
@@ -7676,7 +7680,8 @@ function renderCrafting(skipCenterClear = false) {
             }
         } else {
             if (slotEl.classList.contains('filled')) {
-                slotEl.className = 'slot pentagon-slot';
+                let hc = slotEl.classList.contains('hide-contents') ? ' hide-contents' : '';
+                slotEl.className = 'slot pentagon-slot' + hc;
                 slotEl.innerHTML = '';
             }
             minSets = 0;
@@ -8004,12 +8009,13 @@ function formatNumber(num) {
 
 let isAnimating = false;
 
-function playTransferAnimation(startRect, endRect, endEl, cloneEl, callback) {
-    if (!startRect || !endRect) {
+function playTransferAnimation(startEl, endRect, endEl, callback) {
+    if (!startEl || !endRect) {
         if (callback) callback();
         return;
     }
     
+    let startRect = startEl.getBoundingClientRect();
     endEl.classList.add('hide-contents');
     
     const animEl = document.createElement('div');
@@ -8019,10 +8025,9 @@ function playTransferAnimation(startRect, endRect, endEl, cloneEl, callback) {
     
     const startX = startRect.left;
     const startY = startRect.top;
-    animEl.style.transform = `translate(${startX}px, ${startY}px)`;
     
-    // Move the images from cloneEl to animEl
-    const imgs = cloneEl.querySelectorAll('img');
+    // Clone images from the source element
+    const imgs = startEl.querySelectorAll('img');
     imgs.forEach(img => {
         animEl.appendChild(img.cloneNode(true));
     });
@@ -8032,19 +8037,29 @@ function playTransferAnimation(startRect, endRect, endEl, cloneEl, callback) {
     
     document.body.appendChild(animEl);
     
-    animEl.offsetHeight;
-    
     const endX = endRect.left + (endRect.width - startRect.width) / 2;
     const endY = endRect.top + (endRect.height - startRect.height) / 2;
-    animEl.style.transform = `translate(${endX}px, ${endY}px)`;
     
-    setTimeout(() => {
-        if (document.body.contains(animEl)) {
-            document.body.removeChild(animEl);
+    // Use requestAnimationFrame for reliable animation
+    let startTime = null;
+    function animate(time) {
+        if (!startTime) startTime = time;
+        let progress = (time - startTime) / 400; // 400ms duration
+        if (progress >= 1.0) {
+            animEl.style.transform = `translate(${endX}px, ${endY}px)`;
+            if (document.body.contains(animEl)) document.body.removeChild(animEl);
+            endEl.classList.remove('hide-contents');
+            if (callback) callback();
+            return;
         }
-        endEl.classList.remove('hide-contents');
-        if (callback) callback();
-    }, 400);
+        // cubic-bezier(0.25, 1, 0.5, 1) approx: ease-out
+        let ease = 1 - Math.pow(1 - progress, 3);
+        let currentX = startX + (endX - startX) * ease;
+        let currentY = startY + (endY - startY) * ease;
+        animEl.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
 }
 
 function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = false) {

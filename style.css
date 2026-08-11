@@ -443,7 +443,7 @@ body.forge-mode .console-panel {
 #tt-stats .stat-radius { color: #f9f; }
 
 /* Animation styles */
-.transfer-anim {
+.transfer-anim { top: 0; left: 0;
     position: fixed;
     pointer-events: none;
     z-index: 1000;
