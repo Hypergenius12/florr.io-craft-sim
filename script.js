@@ -7524,9 +7524,11 @@ function moveOneToCrafting(item, startEl) {
     if (!craftingSlots[targetIndex]) craftingSlots[targetIndex] = { itemRef: item, count: 1 };
     else craftingSlots[targetIndex].count++;
     
+    let endRect = uiSlots[targetIndex].getBoundingClientRect();
+    if (startEl) playTransferAnimation(startEl, endRect, uiSlots[targetIndex]);
+    
     renderInventory();
     renderCrafting();
-    if (startEl) playTransferAnimation(item, startEl, uiSlots[targetIndex]);
 }
 
 function moveMultipleToCrafting(item, amount, startEl) {
@@ -7554,9 +7556,11 @@ function moveMultipleToCrafting(item, amount, startEl) {
         else craftingSlots[targetIndex].count++;
     }
     
+    let endRect = uiSlots[targetIndex].getBoundingClientRect();
+    if (startEl) playTransferAnimation(startEl, endRect, uiSlots[targetIndex]);
+    
     renderInventory();
     renderCrafting();
-    if (startEl) playTransferAnimation(item, startEl, uiSlots[targetIndex]);
 }
 
 function moveAllToCrafting(item, startEl) {
