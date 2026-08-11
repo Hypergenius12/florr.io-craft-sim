@@ -447,7 +447,7 @@ body.forge-mode .console-panel {
     position: fixed;
     pointer-events: none;
     z-index: 1000;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    
 }
 .transfer-anim img {
     width: 100%;
