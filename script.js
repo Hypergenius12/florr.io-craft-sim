@@ -7586,12 +7586,13 @@ function moveAllToCrafting(item, startEl) {
     }
     
     let endRects = targets.map(i => uiSlots[i].getBoundingClientRect());
+    let cloneEl = startEl ? startEl.cloneNode(true) : null;
     
     renderInventory();
     renderCrafting();
     if (startRect) {
         targets.forEach((i, idx) => {
-            playTransferAnimation(item, startRect, endRects[idx], uiSlots[i]);
+            playTransferAnimation(startRect, endRects[idx], uiSlots[i], cloneEl);
         });
     }
 }
@@ -8003,7 +8004,7 @@ function formatNumber(num) {
 
 let isAnimating = false;
 
-function playTransferAnimation(item, startRect, endRect, endEl, callback) {
+function playTransferAnimation(startRect, endRect, endEl, cloneEl, callback) {
     if (!startRect || !endRect) {
         if (callback) callback();
         return;
@@ -8011,37 +8012,28 @@ function playTransferAnimation(item, startRect, endRect, endEl, callback) {
     
     endEl.classList.add('hide-contents');
     
-    const rData = RARITIES[item.rarity];
-    
     const animEl = document.createElement('div');
     animEl.className = 'transfer-anim';
     animEl.style.width = startRect.width + 'px';
     animEl.style.height = startRect.height + 'px';
     
-    // Set initial position
     const startX = startRect.left;
     const startY = startRect.top;
     animEl.style.transform = `translate(${startX}px, ${startY}px)`;
     
-    const bgImg = document.createElement('img');
-    bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+    // Move the images from cloneEl to animEl
+    const imgs = cloneEl.querySelectorAll('img');
+    imgs.forEach(img => {
+        animEl.appendChild(img.cloneNode(true));
+    });
+    // Add petal-img class to ensure it spins if it has it
+    let pImg = animEl.querySelectorAll('img')[1];
+    if (pImg) pImg.classList.add('petal-img');
     
-    const img = document.createElement('img');
-    img.className = 'petal-img';
-    img.src = `https://florr.io/petals/${item.id}_${rData.id}.svg`;
-    img.onerror = function() { 
-        this.onerror = function() { this.onerror = null; this.src = `https://florr.io/petals/1.svg`; };
-        this.src = `https://florr.io/petals/${item.id}.svg`; 
-    };
-    
-    animEl.appendChild(bgImg);
-    animEl.appendChild(img);
     document.body.appendChild(animEl);
     
-    // Trigger reflow
     animEl.offsetHeight;
     
-    // Set end position
     const endX = endRect.left + (endRect.width - startRect.width) / 2;
     const endY = endRect.top + (endRect.height - startRect.height) / 2;
     animEl.style.transform = `translate(${endX}px, ${endY}px)`;
@@ -8155,6 +8147,15 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
         const progress = (time - startTime) / duration;
         
         if (progress >= 1.0) {
+            if (isSuccess) {
+                // No return phase on success, they merged!
+                cancelAnimationFrame(animId);
+                animContainer.remove();
+                uiSlots.forEach(s => { s.style.opacity = '1'; });
+                resultCallback();
+                return;
+            }
+            
             returnPhase = true;
             // Calculate final state from progress = 1.0
             const easedProgress = Math.pow(1.0, 3);
@@ -8167,11 +8168,6 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
             // Radius scale at 1.0
             let pFreq = 3 + 1.0 * 8;
             startReturnRadius = 1.0 - Math.abs(Math.sin(1.0 * Math.PI * 2 * pFreq)) * 0.2 * Math.sin(1.0 * Math.PI);
-            if (isSuccess) {
-                startReturnRadius = 0; // It dove to center
-                // To make the shoot-out look good, maybe we make target angle = startAngle + 2PI
-                targetReturnAngle = startReturnAngle + Math.PI * 2;
-            }
             
             animId = requestAnimationFrame(animate);
             return;
