@@ -7424,17 +7424,17 @@ function renderInventory() {
                 
                 const bgImg = document.createElement('img');
                 bgImg.className = 'bg-img';
-                bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                bgImg.src = `img/0_${rData.id}.svg`;
                 
                 const img = document.createElement('img');
                 img.className = 'petal-img';
-                img.src = `https://florr.io/petals/${id}_${rData.id}.svg`;
+                img.src = `img/${id}_${rData.id}.svg`;
                 img.onerror = function() { 
                     this.onerror = function() {
                         this.onerror = null;
-                        this.src = `https://florr.io/petals/1.svg`;
+                        this.src = `img/1.svg`;
                     };
-                    this.src = `https://florr.io/petals/${id}.svg`; 
+                    this.src = `img/${id}.svg`; 
                 };
                 
                 const countDiv = document.createElement('div');
@@ -7465,19 +7465,19 @@ function renderInventory() {
                 countDiv.innerText = `${formatNumber(item.count)}/${formatNumber(req)}`;
                 if (totalOwned < req) {
                     el.classList.add('disabled');
-                    if (bgImg) bgImg.src = 'https://florr.io/petals/0_6.svg';
+                    if (bgImg) bgImg.src = 'img/0_6.svg';
                 } else {
                     el.classList.remove('disabled');
-                    if (bgImg) bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                    if (bgImg) bgImg.src = `img/0_${rData.id}.svg`;
                 }
             } else {
                 countDiv.innerText = `x${formatNumber(item.count)}`;
                 if (!rData.next || totalOwned >= 5) {
                     el.classList.remove('disabled');
-                    if (bgImg) bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                    if (bgImg) bgImg.src = `img/0_${rData.id}.svg`;
                 } else {
                     el.classList.add('disabled');
-                    if (bgImg) bgImg.src = 'https://florr.io/petals/0_6.svg';
+                    if (bgImg) bgImg.src = 'img/0_6.svg';
                 }
             }
             
@@ -7653,17 +7653,17 @@ function renderCrafting(skipCenterClear = false) {
                 
                 const bgImg = document.createElement('img');
                 bgImg.className = 'bg-img';
-                bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                bgImg.src = `img/0_${rData.id}.svg`;
                 
                 const img = document.createElement('img');
                 img.className = 'petal-img';
-                img.src = `https://florr.io/petals/${slot.itemRef.id}_${rData.id}.svg`;
+                img.src = `img/${slot.itemRef.id}_${rData.id}.svg`;
                 img.onerror = function() { 
                     this.onerror = function() {
                         this.onerror = null;
-                        this.src = `https://florr.io/petals/1.svg`;
+                        this.src = `img/1.svg`;
                     };
-                    this.src = `https://florr.io/petals/${slot.itemRef.id}.svg`; 
+                    this.src = `img/${slot.itemRef.id}.svg`; 
                 };
                 
                 const count = document.createElement('div');
@@ -7892,17 +7892,17 @@ function showResult(successes, attempts, baseItem, rData, resultRarity = null, d
         
         const bgImg = document.createElement('img');
         bgImg.className = 'bg-img';
-        bgImg.src = `https://florr.io/petals/0_${nextRarity.id}.svg`;
+        bgImg.src = `img/0_${nextRarity.id}.svg`;
         
         const img = document.createElement('img');
         img.className = 'petal-img';
-        img.src = `https://florr.io/petals/${baseItem.id}_${nextRarity.id}.svg`;
+        img.src = `img/${baseItem.id}_${nextRarity.id}.svg`;
         img.onerror = function() { 
             this.onerror = function() {
                 this.onerror = null;
-                this.src = `https://florr.io/petals/1.svg`;
+                this.src = `img/1.svg`;
             };
-            this.src = `https://florr.io/petals/${baseItem.id}.svg`; 
+            this.src = `img/${baseItem.id}.svg`; 
         };
         
         const count = document.createElement('div');
@@ -8100,12 +8100,12 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
         petal.className = 'crafting-anim-petal';
         
         const bgImg = document.createElement('img');
-        bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+        bgImg.src = `img/0_${rData.id}.svg`;
         
         const img = document.createElement('img');
-        img.src = `https://florr.io/petals/${baseItem.id}_${rData.id}.svg`;
+        img.src = `img/${baseItem.id}_${rData.id}.svg`;
         img.onerror = function() { 
-            this.onerror = null; this.src = `https://florr.io/petals/${baseItem.id}.svg`; 
+            this.onerror = null; this.src = `img/${baseItem.id}.svg`; 
         };
         
         petal.appendChild(bgImg);
@@ -8122,84 +8122,39 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
     let startTime = null;
     let animId = null;
     
-    let returnPhase = false;
-    let returnStartTime = null;
-    let startReturnAngle = 0;
-    let targetReturnAngle = 0;
-    let startReturnRadius = 0;
-    
     function animate(time) {
         if (!startTime) startTime = time;
-        
-        if (returnPhase) {
-            if (!returnStartTime) returnStartTime = time;
-            let returnProgress = (time - returnStartTime) / 400; // 400ms return glide
-            if (returnProgress >= 1.0) {
-                cancelAnimationFrame(animId);
-                animContainer.remove();
-                uiSlots.forEach(s => { s.style.opacity = '1'; });
-                resultCallback();
-                return;
-            }
-            
-            // Glide smoothly
-            let ease = 1 - Math.pow(1 - returnProgress, 3);
-            let currentAngle = startReturnAngle + (targetReturnAngle - startReturnAngle) * ease;
-            let radiusScale = startReturnRadius + (1.0 - startReturnRadius) * ease;
-            
-            petals.forEach((p) => {
-                const angle = currentAngle + p.initialAngle;
-                const r = p.initialRadius * radiusScale;
-                const x = Math.cos(angle) * r;
-                const y = Math.sin(angle) * r;
-                p.el.style.transform = `translate(${x}px, ${y}px)`;
-            });
-            
-            animId = requestAnimationFrame(animate);
-            return;
-        }
-        
         const progress = (time - startTime) / duration;
         
         if (progress >= 1.0) {
-            if (isSuccess) {
-                // No return phase on success, they merged!
-                cancelAnimationFrame(animId);
-                animContainer.remove();
-                uiSlots.forEach(s => { s.style.opacity = '1'; });
-                resultCallback();
-                return;
-            }
-            
-            returnPhase = true;
-            // Calculate final state from progress = 1.0
-            const easedProgress = Math.pow(1.0, 3);
-            const totalRotations = Math.min(25, duration / 400);
-            startReturnAngle = easedProgress * totalRotations * Math.PI * 2;
-            
-            // Target is the nearest multiple of 2PI (or just add a bit to the next multiple)
-            targetReturnAngle = Math.ceil(startReturnAngle / (Math.PI * 2)) * Math.PI * 2;
-            
-            // Radius scale at 1.0
-            let pFreq = 3 + 1.0 * 8;
-            startReturnRadius = 1.0 - Math.abs(Math.sin(1.0 * Math.PI * 2 * pFreq)) * 0.2 * Math.sin(1.0 * Math.PI);
-            
-            animId = requestAnimationFrame(animate);
+            cancelAnimationFrame(animId);
+            animContainer.remove();
+            uiSlots.forEach(s => { s.style.opacity = '1'; });
+            resultCallback();
             return;
         }
         
-        const easedProgress = Math.pow(progress, 3); 
+        // Easing function for speed: Starts slow, gets very fast. Use power curve for acceleration.
+        const easedProgress = Math.pow(progress, 3); // smoother curve
+        
+        // Total rotations based on duration.
         const totalRotations = Math.min(25, duration / 400); 
         const currentAngle = easedProgress * totalRotations * Math.PI * 2;
         
+        // Pulse frequency increases with progress
         const pulseFreq = 3 + progress * 8; 
         
+        // We use a scale factor for the radius. Starts at 1.0.
+        // It pulses inwards mostly, so we use negative sin.
+        // The pulsing gets more intense (larger amplitude) as progress increases, up to a point.
         let radiusScale = 1.0 - Math.abs(Math.sin(progress * Math.PI * 2 * pulseFreq)) * 0.2 * Math.sin(progress * Math.PI);
         
         if (progress > 0.9 && isSuccess) {
+            // Dive into center
             const diveProgress = (progress - 0.9) / 0.1;
             radiusScale = radiusScale * (1 - Math.pow(diveProgress, 3));
         } else if (progress > 0.9 && !isSuccess) {
+            // Slight freeze/jitter effect before explosion
             radiusScale += (Math.random() - 0.5) * 0.05;
         }
 
