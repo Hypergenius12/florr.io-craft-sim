@@ -8115,39 +8115,80 @@ function playCraftingAnimation(baseItem, isSuccess, resultCallback, isForge = fa
     let startTime = null;
     let animId = null;
     
+    let returnPhase = false;
+    let returnStartTime = null;
+    let startReturnAngle = 0;
+    let targetReturnAngle = 0;
+    let startReturnRadius = 0;
+    
     function animate(time) {
         if (!startTime) startTime = time;
-        const progress = (time - startTime) / duration;
         
-        if (progress >= 1.0) {
-            cancelAnimationFrame(animId);
-            animContainer.remove();
-            uiSlots.forEach(s => { s.style.opacity = '1'; });
-            resultCallback();
+        if (returnPhase) {
+            if (!returnStartTime) returnStartTime = time;
+            let returnProgress = (time - returnStartTime) / 400; // 400ms return glide
+            if (returnProgress >= 1.0) {
+                cancelAnimationFrame(animId);
+                animContainer.remove();
+                uiSlots.forEach(s => { s.style.opacity = '1'; });
+                resultCallback();
+                return;
+            }
+            
+            // Glide smoothly
+            let ease = 1 - Math.pow(1 - returnProgress, 3);
+            let currentAngle = startReturnAngle + (targetReturnAngle - startReturnAngle) * ease;
+            let radiusScale = startReturnRadius + (1.0 - startReturnRadius) * ease;
+            
+            petals.forEach((p) => {
+                const angle = currentAngle + p.initialAngle;
+                const r = p.initialRadius * radiusScale;
+                const x = Math.cos(angle) * r;
+                const y = Math.sin(angle) * r;
+                p.el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            
+            animId = requestAnimationFrame(animate);
             return;
         }
         
-        // Easing function for speed: Starts slow, gets very fast. Use power curve for acceleration.
-        const easedProgress = Math.pow(progress, 3); // smoother curve
+        const progress = (time - startTime) / duration;
         
-        // Total rotations based on duration.
+        if (progress >= 1.0) {
+            returnPhase = true;
+            // Calculate final state from progress = 1.0
+            const easedProgress = Math.pow(1.0, 3);
+            const totalRotations = Math.min(25, duration / 400);
+            startReturnAngle = easedProgress * totalRotations * Math.PI * 2;
+            
+            // Target is the nearest multiple of 2PI (or just add a bit to the next multiple)
+            targetReturnAngle = Math.ceil(startReturnAngle / (Math.PI * 2)) * Math.PI * 2;
+            
+            // Radius scale at 1.0
+            let pFreq = 3 + 1.0 * 8;
+            startReturnRadius = 1.0 - Math.abs(Math.sin(1.0 * Math.PI * 2 * pFreq)) * 0.2 * Math.sin(1.0 * Math.PI);
+            if (isSuccess) {
+                startReturnRadius = 0; // It dove to center
+                // To make the shoot-out look good, maybe we make target angle = startAngle + 2PI
+                targetReturnAngle = startReturnAngle + Math.PI * 2;
+            }
+            
+            animId = requestAnimationFrame(animate);
+            return;
+        }
+        
+        const easedProgress = Math.pow(progress, 3); 
         const totalRotations = Math.min(25, duration / 400); 
         const currentAngle = easedProgress * totalRotations * Math.PI * 2;
         
-        // Pulse frequency increases with progress
         const pulseFreq = 3 + progress * 8; 
         
-        // We use a scale factor for the radius. Starts at 1.0.
-        // It pulses inwards mostly, so we use negative sin.
-        // The pulsing gets more intense (larger amplitude) as progress increases, up to a point.
         let radiusScale = 1.0 - Math.abs(Math.sin(progress * Math.PI * 2 * pulseFreq)) * 0.2 * Math.sin(progress * Math.PI);
         
         if (progress > 0.9 && isSuccess) {
-            // Dive into center
             const diveProgress = (progress - 0.9) / 0.1;
             radiusScale = radiusScale * (1 - Math.pow(diveProgress, 3));
         } else if (progress > 0.9 && !isSuccess) {
-            // Slight freeze/jitter effect before explosion
             radiusScale += (Math.random() - 0.5) * 0.05;
         }
 
