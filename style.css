@@ -511,8 +511,3 @@ body.forge-mode .console-panel {
 .hide-contents > * {
     opacity: 0 !important;
 }
-
-.transfer-anim, .crafting-anim-petal, .petal-img {
-    will-change: transform;
-    transform: translateZ(0);
-}
