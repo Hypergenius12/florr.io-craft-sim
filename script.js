@@ -7561,24 +7561,39 @@ function moveAllToCrafting(item, startEl) {
     if (!validateCraftingType(item)) return log("Crafting slots must contain the same petal!", "#f44");
 
     craftResultShowing = false;
+    
+    let startRect = startEl ? startEl.getBoundingClientRect() : null;
 
     const totalToMove = item.count;
     item.count = 0;
     
-    let base = Math.floor(totalToMove / 5);
-    let remainder = totalToMove % 5;
+    let existingTotal = craftingSlots.reduce((sum, s) => sum + (s ? s.count : 0), 0);
+    let totalToDistribute = existingTotal + totalToMove;
     
+    let base = Math.floor(totalToDistribute / 5);
+    let remainder = totalToDistribute % 5;
+    
+    let targets = [];
     for (let i = 0; i < 5; i++) {
         let add = base + (i < remainder ? 1 : 0);
         if (add > 0) {
             if (!craftingSlots[i]) craftingSlots[i] = { itemRef: item, count: add };
-            else craftingSlots[i].count += add;
-            if (startEl) playTransferAnimation(item, startEl, uiSlots[i]);
+            else craftingSlots[i].count = add;
+            targets.push(i);
+        } else {
+            craftingSlots[i] = null;
         }
     }
     
+    let endRects = targets.map(i => uiSlots[i].getBoundingClientRect());
+    
     renderInventory();
     renderCrafting();
+    if (startRect) {
+        targets.forEach((i, idx) => {
+            playTransferAnimation(item, startRect, endRects[idx], uiSlots[i]);
+        });
+    }
 }
 
 function removeFromCrafting(index, shiftKey, startEl) {
@@ -7619,7 +7634,6 @@ function renderCrafting(skipCenterClear = false) {
 
     craftingSlots.forEach((slot, index) => {
         const slotEl = uiSlots[index];
-        slotEl.innerHTML = '';
         
         if (slot) {
             filledCount++;
@@ -7627,33 +7641,43 @@ function renderCrafting(skipCenterClear = false) {
             if (slot.count < minSets) minSets = slot.count;
             
             const rData = RARITIES[slot.itemRef.rarity];
-            slotEl.className = 'slot pentagon-slot filled';
             
-            const bgImg = document.createElement('img');
-            bgImg.className = 'bg-img';
-            bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
-            
-            const img = document.createElement('img');
-            img.className = 'petal-img';
-            img.src = `https://florr.io/petals/${slot.itemRef.id}_${rData.id}.svg`;
-            img.onerror = function() { 
-                this.onerror = function() {
-                    this.onerror = null;
-                    this.src = `https://florr.io/petals/1.svg`;
+            if (!slotEl.classList.contains('filled')) {
+                slotEl.innerHTML = '';
+                slotEl.className = 'slot pentagon-slot filled';
+                
+                const bgImg = document.createElement('img');
+                bgImg.className = 'bg-img';
+                bgImg.src = `https://florr.io/petals/0_${rData.id}.svg`;
+                
+                const img = document.createElement('img');
+                img.className = 'petal-img';
+                img.src = `https://florr.io/petals/${slot.itemRef.id}_${rData.id}.svg`;
+                img.onerror = function() { 
+                    this.onerror = function() {
+                        this.onerror = null;
+                        this.src = `https://florr.io/petals/1.svg`;
+                    };
+                    this.src = `https://florr.io/petals/${slot.itemRef.id}.svg`; 
                 };
-                this.src = `https://florr.io/petals/${slot.itemRef.id}.svg`; 
-            };
-            
-            const count = document.createElement('div');
-            count.className = 'count';
-            count.innerText = `x${slot.count}`;
-            
-            slotEl.appendChild(bgImg);
-            slotEl.appendChild(img);
-            slotEl.appendChild(count);
+                
+                const count = document.createElement('div');
+                count.className = 'count';
+                count.innerText = `x${slot.count}`;
+                
+                slotEl.appendChild(bgImg);
+                slotEl.appendChild(img);
+                slotEl.appendChild(count);
+            } else {
+                // Just update count
+                const countEl = slotEl.querySelector('.count');
+                if (countEl) countEl.innerText = `x${slot.count}`;
+            }
         } else {
-            slotEl.className = 'slot pentagon-slot';
-            
+            if (slotEl.classList.contains('filled')) {
+                slotEl.className = 'slot pentagon-slot';
+                slotEl.innerHTML = '';
+            }
             minSets = 0;
         }
         
