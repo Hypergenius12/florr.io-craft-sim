@@ -6894,6 +6894,7 @@ function updateModeUI() {
         }
     }
     renderCrafting();
+    preloadImages(userInventory);
     renderInventory();
 }
 
@@ -6973,6 +6974,7 @@ function clearCraftingSlots() {
         }
     }
     renderCrafting();
+    preloadImages(userInventory);
     renderInventory();
 }
 
@@ -7350,8 +7352,7 @@ function processCommand(rawCmd) {
         }
     }
 
-    renderInventory();
-    renderCrafting();
+    queueRender();
 }
 
 function addInventory(rarity, id, name, amount, skipRender = false) {
@@ -7359,6 +7360,53 @@ function addInventory(rarity, id, name, amount, skipRender = false) {
     if (existing) existing.count += amount;
     else inventory.push({ rarity, id, name, count: amount });
     if (!skipRender) renderInventory();
+}
+
+function preloadImages(inventory) {
+    let preloader = document.getElementById('image-preloader');
+    if (!preloader) {
+        preloader = document.createElement('div');
+        preloader.id = 'image-preloader';
+        preloader.style.display = 'none';
+        document.body.appendChild(preloader);
+    }
+    
+    let loadedSrcs = new Set();
+    Array.from(preloader.children).forEach(img => loadedSrcs.add(img.getAttribute('data-src')));
+    
+    inventory.forEach(item => {
+        const rData = RARITIES[item.rarity];
+        
+        let bgSrc = `img/0_${rData.id}.svg`;
+        if (!loadedSrcs.has(bgSrc)) {
+            let img = new Image();
+            img.src = bgSrc;
+            img.setAttribute('data-src', bgSrc);
+            preloader.appendChild(img);
+            loadedSrcs.add(bgSrc);
+        }
+        
+        let petalSrc = `img/${item.id}_${rData.id}.svg`;
+        if (!loadedSrcs.has(petalSrc)) {
+            let img = new Image();
+            img.src = petalSrc;
+            img.setAttribute('data-src', petalSrc);
+            preloader.appendChild(img);
+            loadedSrcs.add(petalSrc);
+        }
+    });
+}
+
+let renderQueued = false;
+function queueRender() {
+    if (!renderQueued) {
+        renderQueued = true;
+        requestAnimationFrame(() => {
+            renderInventory();
+            renderCrafting();
+            renderQueued = false;
+        });
+    }
 }
 
 function renderInventory() {
@@ -7527,8 +7575,7 @@ function moveOneToCrafting(item, startEl) {
     let endRect = uiSlots[targetIndex].getBoundingClientRect();
     if (startEl) playTransferAnimation(startEl, endRect, uiSlots[targetIndex]);
     
-    renderInventory();
-    renderCrafting();
+    queueRender();
 }
 
 function moveMultipleToCrafting(item, amount, startEl) {
@@ -7559,8 +7606,7 @@ function moveMultipleToCrafting(item, amount, startEl) {
     let endRect = uiSlots[targetIndex].getBoundingClientRect();
     if (startEl) playTransferAnimation(startEl, endRect, uiSlots[targetIndex]);
     
-    renderInventory();
-    renderCrafting();
+    queueRender();
 }
 
 function moveAllToCrafting(item, startEl) {
@@ -7600,8 +7646,7 @@ function moveAllToCrafting(item, startEl) {
         });
     }
     
-    renderInventory();
-    renderCrafting();
+    queueRender();
 }
 
 function removeFromCrafting(index, shiftKey, startEl) {
@@ -7619,8 +7664,7 @@ function removeFromCrafting(index, shiftKey, startEl) {
         slot.count--;
         if (slot.count <= 0) craftingSlots[index] = null;
     }
-    renderInventory();
-    renderCrafting();
+    queueRender();
     
     if (startEl) {
         // Find inventory slot to fly back to
